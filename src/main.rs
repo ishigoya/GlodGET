@@ -1,32 +1,6 @@
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
 
-#[cfg(not(target_family = "wasm"))]
-use bevy::render::settings::WgpuSettings;
-
-#[cfg(not(target_family = "wasm"))]
-use bevy_websocket_adapter::{
-    bevy::{WebSocketClient, WebSocketServer, WsMessageInserter},
-    client::Client,
-    impl_message_type,
-    server::Server,
-    shared::NetworkEvent,
-};
-
-#[cfg(not(target_family = "wasm"))]
-use serde::{Deserialize, Serialize};
-
-#[cfg(not(target_family = "wasm"))]
-#[derive(Serialize, Deserialize, Debug, Clone)]
-struct DummyEvent {
-    a: u32,
-}
-
-#[cfg(not(target_family = "wasm"))]
-impl_message_type!(DummyEvent, "dummy");
-
-// A macro to provide `println!(..)`-style syntax for `console.log` logging.
-
 mod random;
 use random::*;
 
@@ -55,29 +29,6 @@ use physics::*;
 
 mod glod;
 use glod::*;
-
-#[cfg(not(target_family = "wasm"))]
-fn connect_to_server(mut ws: ResMut<Client>) {
-    ws.connect("ws://127.0.0.1:12345".to_string());
-}
-
-#[cfg(not(target_family = "wasm"))]
-fn send_dummies(client: Res<Client>) {
-    client.send_message(&DummyEvent { a: 2 });
-}
-
-#[cfg(not(target_family = "wasm"))]
-fn start_listen(mut ws: ResMut<Server>) {
-    ws.listen("0.0.0.0:12346")
-        .expect("failed to start websocket server");
-}
-
-#[cfg(not(target_family = "wasm"))]
-fn listen_for_events(mut evs: EventReader<NetworkEvent>) {
-    for ev in evs.iter() {
-        println!("received NetworkEvent : {:?}", ev);
-    }
-}
 
 fn main() {
     App::new()
