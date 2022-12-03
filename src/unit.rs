@@ -1,5 +1,4 @@
 use crate::{BodyForce, ForceProfile};
-use crate::log;
 use crate::{CollisionFilters, CollisionMemberships};
 use crate::{
     Explodee, FoeStartingPoint, FriendStartingPoint, GameState, IsBase, IsGlod, Score, Weapon,
@@ -130,7 +129,6 @@ fn spawn_unit(
         });
 
     enemy_state.set(EnemyState::PreStart).unwrap();
-    log!("friend unit created");
 
     commands
         .spawn((
@@ -165,7 +163,6 @@ fn spawn_unit(
             impulse: Vec2::ZERO,
             torque_impulse: 0.0,
         }));
-    log!("foe unit created");
 }
 
 fn display_events(
