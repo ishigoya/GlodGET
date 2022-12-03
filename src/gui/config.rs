@@ -15,27 +15,23 @@ pub struct UIConfigPlugin;
 
 impl Plugin for UIConfigPlugin {
     fn build(&self, app: &mut App) {
-        app.insert_resource(WindowDescriptor {
-            title: "GlodGET".to_string(),
-            width: 640.0,
-            height: 640.0,
-            ..Default::default()
-        })
-        .insert_resource(Msaa::default())
+        app.insert_resource(Msaa::default())
         .insert_resource(ClearColor(Color::rgb(0.0, 0.0, 0.0)))
         .add_startup_system(setup.label("main_setup"))
         //        .add_plugin(RapierDebugRenderPlugin::default())
-        .add_plugins(DefaultPlugins)
+        .add_plugins(DefaultPlugins.set(WindowPlugin {
+            window: WindowDescriptor {
+                title: "GlodGET".to_string(),
+                width: 640.0,
+                height: 640.0,
+                ..default()
+            },
+        ..default()
+        }))
         .add_plugin(ShapePlugin);
     }
 }
 
-fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
-    commands.spawn().insert_bundle(Camera2dBundle::default());
-
-    commands.insert_resource(TextStyle {
-        font_size: 60.0,
-        color: Color::WHITE,
-        font: asset_server.load("fonts/FiraSans-Bold.ttf"),
-    })
+fn setup(mut commands: Commands) {
+    commands.spawn(Camera2dBundle::default());
 }

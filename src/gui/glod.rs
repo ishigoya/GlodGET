@@ -19,7 +19,7 @@ fn draw_glod(
         commands
             .entity(glod)
             .insert(Drawn)
-            .insert_bundle(lyon::GeometryBuilder::build_as(
+            .insert(lyon::GeometryBuilder::build_as(
                 &lyon::shapes::Circle {
                     radius: GLOD_RADIUS,
                     center: Vec2::ZERO,

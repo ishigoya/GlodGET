@@ -36,7 +36,7 @@ fn draw_unit(
         commands
             .entity(friend)
             .insert(Drawn)
-            .insert_bundle(lyon::GeometryBuilder::build_as(
+            .insert(lyon::GeometryBuilder::build_as(
                 &lyon::shapes::Polygon {
                     points: UNIT_POINTS.to_vec(),
                     closed: true,
@@ -48,7 +48,7 @@ fn draw_unit(
         commands
             .entity(enemy)
             .insert(Drawn)
-            .insert_bundle(lyon::GeometryBuilder::build_as(
+            .insert(lyon::GeometryBuilder::build_as(
                 &lyon::shapes::Polygon {
                     points: UNIT_POINTS.to_vec(),
                     closed: true,

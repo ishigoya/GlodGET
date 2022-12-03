@@ -1,4 +1,5 @@
 use crate::{BodyForce, ForceProfile};
+use crate::log;
 use crate::{CollisionFilters, CollisionMemberships};
 use crate::{
     Explodee, FoeStartingPoint, FriendStartingPoint, GameState, IsBase, IsGlod, Score, Weapon,
@@ -6,6 +7,7 @@ use crate::{
 };
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
+use bevy_rapier2d::geometry::Group;
 
 pub struct UnitPlugin;
 
@@ -63,56 +65,55 @@ fn spawn_unit(
     mut enemy_state: ResMut<State<EnemyState>>,
 ) {
     commands
-        .spawn()
-        .insert_bundle(SpatialBundle::visible_identity())
-        .insert_bundle(TransformBundle::from_transform(
+        .spawn((
+        TransformBundle::from_transform(
             Transform::from_translation(friend_start.0),
-        ))
-        .insert(Playable)
-        .insert(Explodee)
-        .insert(RigidBody::Dynamic)
+        ),
+        Playable,
+        Explodee,
+        RigidBody::Dynamic))
         .with_children(|children| {
             children
-                .spawn()
-                .insert_bundle(SpatialBundle::visible_identity())
-                .insert(PlayableCollider)
-                .insert(Collider::triangle(
-                    UNIT_POINTS[0],
-                    UNIT_POINTS[1],
-                    UNIT_POINTS[2],
-                ))
-                .insert(ActiveEvents::COLLISION_EVENTS)
-                .insert(ColliderMassProperties::Mass(UNIT_MASS))
-                .insert(CollisionGroups::new(
-                    CollisionMemberships::Friend as u32,
-                    CollisionFilters::Friend as u32,
-                ));
+                .spawn((
+                    SpatialBundle::VISIBLE_IDENTITY,
+                    PlayableCollider,
+                    Collider::triangle(
+                        UNIT_POINTS[0],
+                        UNIT_POINTS[1],
+                        UNIT_POINTS[2],
+                    ),
+                    ActiveEvents::COLLISION_EVENTS,
+                    ColliderMassProperties::Mass(UNIT_MASS),
+                    CollisionGroups::new(
+                        Group::from_bits(CollisionMemberships::Friend as u32).unwrap(),
+                        Group::from_bits(CollisionFilters::Friend as u32).unwrap(),
+                )));
             children
-                .spawn()
-                .insert(Collider::cuboid(5.0, 3.0))
-                .insert(ColliderMassProperties::Mass(WEAPON_MASS))
-                .insert(CollisionGroups::new(
-                    CollisionMemberships::InertWeapon as u32,
-                    CollisionFilters::InertWeapon as u32,
-                ))
-                .insert_bundle(TransformBundle::from_transform(Transform::from_xyz(
+                .spawn((
+                Collider::cuboid(5.0, 3.0),
+                ColliderMassProperties::Mass(WEAPON_MASS),
+                CollisionGroups::new(
+                    Group::from_bits(CollisionMemberships::InertWeapon as u32).unwrap(),
+                    Group::from_bits(CollisionFilters::InertWeapon as u32).unwrap(),
+                ),
+                TransformBundle::from_transform(Transform::from_xyz(
                     4.0, 10.0, 0.0,
-                )))
-                .insert(Weapon)
-                .insert(WeaponPreLaunch);
+                )),
+                Weapon,
+                WeaponPreLaunch));
             children
-                .spawn()
-                .insert(Collider::cuboid(5.0, 3.0))
-                .insert(ColliderMassProperties::Mass(WEAPON_MASS))
-                .insert(CollisionGroups::new(
-                    CollisionMemberships::InertWeapon as u32,
-                    CollisionFilters::InertWeapon as u32,
-                ))
-                .insert_bundle(TransformBundle::from_transform(Transform::from_xyz(
+                .spawn((
+                Collider::cuboid(5.0, 3.0),
+                ColliderMassProperties::Mass(WEAPON_MASS),
+                CollisionGroups::new(
+                    Group::from_bits(CollisionMemberships::InertWeapon as u32).unwrap(),
+                    Group::from_bits(CollisionFilters::InertWeapon as u32).unwrap(),
+                ),
+                TransformBundle::from_transform(Transform::from_xyz(
                     4.0, -10.0, 0.0,
-                )))
-                .insert(Weapon)
-                .insert(WeaponPreLaunch);
+                )),
+                Weapon,
+                WeaponPreLaunch));
         })
         .insert(Velocity::zero())
         .insert(Damping {
@@ -129,45 +130,46 @@ fn spawn_unit(
         });
 
     enemy_state.set(EnemyState::PreStart).unwrap();
+    log!("friend unit created");
 
     commands
-        .spawn()
-        .insert_bundle(TransformBundle::from_transform(
+        .spawn((
+        TransformBundle::from_transform(
             Transform::from_translation(foe_start.0),
-        ))
-        .insert(IsEnemy)
-        .insert(RigidBody::Dynamic)
-        .insert(Collider::triangle(
+        ),
+        IsEnemy,
+        RigidBody::Dynamic,
+        Collider::triangle(
             UNIT_POINTS[0],
             UNIT_POINTS[1],
             UNIT_POINTS[2],
-        ))
-        .insert(CollisionGroups::new(
-            CollisionMemberships::Enemy as u32,
-            CollisionFilters::Enemy as u32,
-        ))
-        .insert(ActiveEvents::COLLISION_EVENTS)
-        .insert(ColliderMassProperties::Mass(UNIT_MASS))
-        .insert(Explodee)
-        .insert(Sensor)
-        .insert(Velocity::zero())
-        .insert(Damping {
+        ),
+        CollisionGroups::new(
+            Group::from_bits(CollisionMemberships::Enemy as u32).unwrap(),
+            Group::from_bits(CollisionFilters::Enemy as u32).unwrap(),
+        ),
+        ActiveEvents::COLLISION_EVENTS,
+        ColliderMassProperties::Mass(UNIT_MASS),
+        Explodee,
+        Sensor,
+        Velocity::zero(),
+        Damping {
             linear_damping: 0.4,
             angular_damping: 1.0,
-        })
-        .insert(ExternalForce {
+        },
+        ExternalForce {
             force: Vec2::ZERO,
             torque: 0.0,
-        })
-        .insert(ExternalImpulse {
+        },
+        ExternalImpulse {
             impulse: Vec2::ZERO,
             torque_impulse: 0.0,
-        });
+        }));
+    log!("foe unit created");
 }
 
 fn display_events(
     mut query: Query<(Entity, &mut ColliderMassProperties), With<PlayableCollider>>,
-    //    mut query: Query<(Entity, &mut ColliderMassProperties), With<Playable>>,
     glods: Query<Entity, With<IsGlod>>,
     enemy: Query<Entity, With<IsEnemy>>,
     base: Query<Entity, With<IsBase>>,

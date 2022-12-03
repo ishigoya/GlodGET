@@ -8,6 +8,7 @@ use rand_pcg::Pcg64;
 use rand_seeder::Seeder;
 
 #[derive(Hash, PartialEq, Eq, Clone, Debug)]
+#[derive(Resource)]
 pub struct GameSeed(pub String);
 
 impl Default for GameSeed {
@@ -16,6 +17,7 @@ impl Default for GameSeed {
     }
 }
 
+#[derive(Resource)]
 pub struct GlodPoints {
     pub glods: [Vec3; GLOD_QUANTITY],
 }

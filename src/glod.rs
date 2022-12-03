@@ -3,6 +3,7 @@ use crate::{CollisionFilters, CollisionMemberships};
 use crate::{Explodee, GameState, IsGlod};
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
+use bevy_rapier2d::geometry::Group;
 
 pub struct GlodPlugin;
 
@@ -27,29 +28,29 @@ fn despawn_glod(mut commands: Commands, glod: Query<Entity, With<IsGlod>>) {
 fn spawn_glod(mut commands: Commands, glods: Res<GlodPoints>) {
     for glod in (*glods).glods.iter() {
         commands
-            .spawn()
-            .insert(RigidBody::Dynamic)
-            .insert(Collider::ball(GLOD_RADIUS))
-            .insert(CollisionGroups::new(
-                CollisionMemberships::Glod as u32,
-                CollisionFilters::WithFriend as u32,
-            ))
-            .insert(Damping {
+            .spawn((
+            RigidBody::Dynamic,
+            Collider::ball(GLOD_RADIUS),
+            CollisionGroups::new(
+                Group::from_bits(CollisionMemberships::Glod as u32).unwrap(),
+                Group::from_bits(CollisionFilters::WithFriend as u32).unwrap(),
+            ),
+            Damping {
                 linear_damping: 2.0,
                 angular_damping: 0.0,
-            })
-            .insert(Sensor)
-            .insert(IsGlod)
-            .insert(Explodee)
-            .insert(ExternalForce {
+            },
+            Sensor, 
+            IsGlod,
+            Explodee,
+            ExternalForce {
                 force: Vec2::ZERO,
                 torque: 0.0,
-            })
-            .insert(ExternalImpulse {
+            },
+            ExternalImpulse {
                 impulse: Vec2::ZERO,
                 torque_impulse: 0.0,
-            })
-            .insert(ColliderMassProperties::Mass(GLOD_MASS))
-            .insert(Transform::from_translation(*glod));
+            },
+            ColliderMassProperties::Mass(GLOD_MASS),
+            Transform::from_translation(*glod)));
     }
 }

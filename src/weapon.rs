@@ -66,8 +66,8 @@ pub struct Torpedo {
 impl Torpedo {
     pub fn new() -> Torpedo {
         Torpedo {
-            explosion_timer: Timer::new(Duration::from_millis(2500), false),
-            active_timer: Timer::new(Duration::from_millis(0), false),
+            explosion_timer: Timer::new(Duration::from_millis(2500), TimerMode::Once),
+            active_timer: Timer::new(Duration::from_millis(0), TimerMode::Once),
         }
     }
 
@@ -107,9 +107,9 @@ fn torpedo_impact(
 pub fn spawn_explosion(commands: &mut Commands, entity: Entity, source: &Torpedo, loc: &Transform) {
     let trans = TransformBundle::from_transform(*loc);
     commands
-        .spawn()
-        .insert_bundle(trans)
-        .insert(source.explode());
+        .spawn((
+        trans,
+        source.explode()));
     commands.entity(entity).despawn();
 }
 

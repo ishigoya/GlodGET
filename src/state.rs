@@ -29,9 +29,13 @@ pub struct IsBase;
 #[derive(Component)]
 pub struct EnemyBase;
 
+#[derive(Resource)]
 pub struct FriendStartingPoint(pub Vec3);
+
+#[derive(Resource)]
 pub struct FoeStartingPoint(pub Vec3);
 
+#[derive(Resource)]
 pub struct Score(pub u8);
 
 pub struct StatePlugin;

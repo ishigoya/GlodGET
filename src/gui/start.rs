@@ -19,7 +19,7 @@ fn draw_startpoints(
         commands
             .entity(friend)
             .insert(Drawn)
-            .insert_bundle(lyon::GeometryBuilder::build_as(
+            .insert(lyon::GeometryBuilder::build_as(
                 &lyon::shapes::Circle {
                     radius: START_RADIUS,
                     center: Vec2::ZERO,
@@ -34,7 +34,7 @@ fn draw_startpoints(
         commands
             .entity(enemy)
             .insert(Drawn)
-            .insert_bundle(lyon::GeometryBuilder::build_as(
+            .insert(lyon::GeometryBuilder::build_as(
                 &lyon::shapes::Rectangle {
                     extents: Vec2::new(-80.0, 80.0),
                     origin: lyon::RectangleOrigin::Center,

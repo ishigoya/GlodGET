@@ -2,6 +2,7 @@ use crate::{CollisionFilters, CollisionMemberships};
 use crate::{EnemyBase, EnemyState, FoeStartingPoint, FriendStartingPoint, GameState, IsBase};
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
+use bevy_rapier2d::geometry::Group;
 
 pub const START_RADIUS: f32 = 50.0;
 
@@ -35,22 +36,22 @@ fn spawn_startpoints(
     foe_start: Res<FoeStartingPoint>,
 ) {
     commands
-        .spawn()
-        .insert(Collider::ball(START_RADIUS))
-        .insert(Sensor)
-        .insert(CollisionGroups::new(
-            CollisionMemberships::FriendlyBase as u32,
-            CollisionFilters::WithFriend as u32,
-        ))
-        .insert(IsBase)
-        .insert_bundle(TransformBundle::from_transform(
+        .spawn((
+        Collider::ball(START_RADIUS),
+        Sensor,
+        CollisionGroups::new(
+            Group::from_bits(CollisionMemberships::FriendlyBase as u32).unwrap(),
+            Group::from_bits(CollisionFilters::WithFriend as u32).unwrap(),
+        ),
+        IsBase,
+        TransformBundle::from_transform(
             Transform::from_translation(friend_start.0),
-        ));
+        )));
 
     commands
-        .spawn()
-        .insert_bundle(TransformBundle::from_transform(
+        .spawn((
+        TransformBundle::from_transform(
             Transform::from_translation(foe_start.0),
-        ))
-        .insert(EnemyBase);
+        ),
+        EnemyBase));
 }

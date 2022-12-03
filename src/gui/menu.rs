@@ -43,15 +43,19 @@ fn exit_ui_despawn(mut commands: Commands, query: Query<Entity, With<Ui>>) {
 }
 
 #[cfg(target_family = "wasm")]
-fn victory(mut commands: Commands, score: ResMut<Score>, text_style: Res<TextStyle>) {
+fn victory(mut commands: Commands, score: ResMut<Score>, asset_server: Res<AssetServer>) {
     let text_alignment = TextAlignment::CENTER;
     commands
-        .spawn_bundle(Text2dBundle {
+        .spawn(Text2dBundle {
             text: Text::from_section(
                 "You win!\nYour score: ".to_owned()
                     + &((*score).0.to_string()
                         + "\nEnter: replay same map\ns: new map\nEsc: return to main menu"),
-                text_style.clone(),
+                TextStyle {
+        font_size: 60.0,
+        color: Color::WHITE,
+        font: asset_server.load("fonts/FiraSans-Bold.ttf"),
+    },
             )
             .with_alignment(text_alignment),
             ..default()
@@ -60,13 +64,17 @@ fn victory(mut commands: Commands, score: ResMut<Score>, text_style: Res<TextSty
 }
 
 #[cfg(target_family = "wasm")]
-fn main_menu(mut commands: Commands, text_style: Res<TextStyle>) {
+fn main_menu(mut commands: Commands, asset_server: Res<AssetServer>) {
     let text_alignment = TextAlignment::CENTER;
     commands
-        .spawn_bundle(Text2dBundle {
+        .spawn(Text2dBundle {
             text: Text::from_section(
                 "GlodGET\n\nEnter: New Game\nS: set game seed",
-                text_style.clone(),
+                TextStyle {
+        font_size: 60.0,
+        color: Color::WHITE,
+        font: asset_server.load("fonts/FiraSans-Bold.ttf"),
+    },
             )
             .with_alignment(text_alignment),
             ..default()
@@ -87,14 +95,18 @@ fn main_menu_key_input(
 }
 
 #[cfg(target_family = "wasm")]
-fn seed_menu(mut commands: Commands, game_seed: ResMut<GameSeed>, text_style: Res<TextStyle>) {
+fn seed_menu(mut commands: Commands, game_seed: ResMut<GameSeed>, asset_server: Res<AssetServer>) {
     let text_alignment = TextAlignment::CENTER;
     commands
-        .spawn_bundle(Text2dBundle {
+        .spawn(Text2dBundle {
             text: Text::from_section(
                 "Seed Menu\n\nHit enter to launch game\nSeed:\n ".to_owned()
                     + &((*game_seed).0.to_string()),
-                text_style.clone(),
+                TextStyle {
+        font_size: 60.0,
+        color: Color::WHITE,
+        font: asset_server.load("fonts/FiraSans-Bold.ttf"),
+    },
             )
             .with_alignment(text_alignment),
             ..default()
@@ -142,13 +154,17 @@ fn end_game_key_input(
     };
 }
 
-fn gameover(mut commands: Commands, text_style: Res<TextStyle>) {
+fn gameover(mut commands: Commands, asset_server: Res<AssetServer>) {
     let text_alignment = TextAlignment::CENTER;
     commands
-        .spawn_bundle(Text2dBundle {
+        .spawn(Text2dBundle {
             text: Text::from_section(
                 "You lose!\nEnter: replay same map\ns: new map\nEsc: return to main menu",
-                text_style.clone(),
+                TextStyle {
+        font_size: 60.0,
+        color: Color::WHITE,
+        font: asset_server.load("fonts/FiraSans-Bold.ttf"),
+    },
             )
             .with_alignment(text_alignment),
             ..default()

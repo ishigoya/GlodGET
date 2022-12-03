@@ -3,6 +3,7 @@ use crate::{Drawn, Explosion, GameState, Playable, Torpedo, Weapon, WeaponPreLau
 use bevy::prelude::*;
 use bevy_prototype_lyon::prelude as lyon;
 use bevy_rapier2d::prelude::*;
+use bevy_rapier2d::geometry::Group;
 
 pub struct UIWeaponPlugin;
 
@@ -25,7 +26,7 @@ fn draw_inert_weapons(
         commands
             .entity(weapon)
             .insert(Drawn)
-            .insert_bundle(lyon::GeometryBuilder::build_as(
+            .insert(lyon::GeometryBuilder::build_as(
                 &lyon::shapes::Rectangle {
                     extents: Vec2::new(5.0, 3.0),
                     origin: lyon::shapes::RectangleOrigin::Center,
@@ -49,34 +50,34 @@ fn standby_fire(
                 commands.entity(child).despawn();
 
                 commands
-                    .spawn()
-                    .insert(RigidBody::Dynamic)
-                    .insert(Damping {
+                    .spawn((
+                    RigidBody::Dynamic,
+                    Damping {
                         linear_damping: 0.2,
                         angular_damping: 1.5,
-                    })
-                    .insert(Collider::cuboid(5.0, 3.0))
-                    .insert(CollisionGroups::new(
-                        CollisionMemberships::KineticWeapon as u32,
-                        CollisionFilters::KineticWeapon as u32,
-                    ))
-                    .insert(ColliderMassProperties::Mass(WEAPON_MASS))
-                    .insert(ActiveEvents::COLLISION_EVENTS)
-                    .insert_bundle(lyon::GeometryBuilder::build_as(
+                    },
+                    Collider::cuboid(5.0, 3.0),
+                    CollisionGroups::new(
+                        Group::from_bits(CollisionMemberships::KineticWeapon as u32).unwrap(),
+                        Group::from_bits(CollisionFilters::KineticWeapon as u32).unwrap(),
+                    ),
+                    ColliderMassProperties::Mass(WEAPON_MASS),
+                    ActiveEvents::COLLISION_EVENTS,
+                    lyon::GeometryBuilder::build_as(
                         &lyon::shapes::Rectangle {
                             extents: Vec2::new(5.0, 3.0),
                             origin: lyon::shapes::RectangleOrigin::Center,
                         },
                         lyon::DrawMode::Fill(lyon::FillMode::color(Color::WHITE)),
                         (*trans) * (*c_trans),
-                    ))
-                    .insert(Weapon)
-                    .insert(ExternalForce {
+                    ),
+                    Weapon,
+                    ExternalForce {
                         force: Vec2::ZERO,
                         torque: 0.0,
-                    })
-                    .insert(*velocity)
-                    .insert(Torpedo::new());
+                    },
+                    *velocity,
+                    Torpedo::new()));
             };
         }
         None => (),
@@ -91,7 +92,7 @@ fn draw_explosions(
         commands
             .entity(entity)
             .insert(Drawn)
-            .insert_bundle(lyon::GeometryBuilder::build_as(
+            .insert(lyon::GeometryBuilder::build_as(
                 &lyon::shapes::Circle {
                     radius: 25.0,
                     center: Vec2::ZERO,
