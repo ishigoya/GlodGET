@@ -1,6 +1,6 @@
 use crate::log;
 use crate::GameSeed;
-use crate::{AppState, GameState, Score};
+use crate::{AppState, GameState, Score, HighScore};
 use bevy::prelude::*;
 
 #[derive(Component)]
@@ -10,7 +10,10 @@ pub struct UIMenuPlugin;
 
 impl Plugin for UIMenuPlugin {
     fn build(&self, app: &mut App) {
+        let local_storage = web_sys::window().unwrap().local_storage().unwrap().unwrap();
+        let high_score: u8 = local_storage.get_item("high_score").unwrap().unwrap_or("0".to_string()).parse::<u8>().unwrap();
         app.add_system_set(SystemSet::on_enter(AppState::MainMenu).with_system(main_menu))
+            .insert_resource(HighScore(high_score))
             .add_system_set(
                 SystemSet::on_update(AppState::MainMenu).with_system(main_menu_key_input),
             )
@@ -23,7 +26,7 @@ impl Plugin for UIMenuPlugin {
                     .with_system(seed_menu.after("input").label("draw")),
             )
             .add_system_set(SystemSet::on_exit(AppState::SeedMenu).with_system(exit_ui_despawn))
-            .add_system_set(SystemSet::on_enter(GameState::Victory).with_system(victory))
+            .add_system_set(SystemSet::on_enter(GameState::Victory).with_system(victory.after("score_update")))
             .add_system_set(
                 SystemSet::on_update(GameState::Victory).with_system(end_game_key_input),
             )
@@ -43,13 +46,17 @@ fn exit_ui_despawn(mut commands: Commands, query: Query<Entity, With<Ui>>) {
 }
 
 #[cfg(target_family = "wasm")]
-fn victory(mut commands: Commands, score: ResMut<Score>, asset_server: Res<AssetServer>) {
+fn victory(mut commands: Commands, score: ResMut<Score>, high_score: ResMut<HighScore>, asset_server: Res<AssetServer>) {
     let text_alignment = TextAlignment::CENTER;
+    let local_storage = web_sys::window().unwrap().local_storage().unwrap().unwrap();
+    local_storage.set_item("high_score", &((*high_score).0.to_string())).unwrap();
     commands
         .spawn(Text2dBundle {
             text: Text::from_section(
                 "You win!\nYour score: ".to_owned()
                     + &((*score).0.to_string()
+                        + "\n High score: "
+                        + &(*high_score).0.to_string()
                         + "\nEnter: replay same map\ns: new map\nEsc: return to main menu"),
                 TextStyle {
         font_size: 60.0,
@@ -64,12 +71,12 @@ fn victory(mut commands: Commands, score: ResMut<Score>, asset_server: Res<Asset
 }
 
 #[cfg(target_family = "wasm")]
-fn main_menu(mut commands: Commands, asset_server: Res<AssetServer>) {
+fn main_menu(mut commands: Commands, high_score: ResMut<HighScore>, asset_server: Res<AssetServer>) {
     let text_alignment = TextAlignment::CENTER;
     commands
         .spawn(Text2dBundle {
             text: Text::from_section(
-                "GlodGET\n\nEnter: New Game\nS: set game seed",
+                "GlodGET\n\nHigh Score: ".to_owned() + &((*high_score).0.to_string() + "\n\nEnter: New Game\nS: set game seed"),
                 TextStyle {
         font_size: 60.0,
         color: Color::WHITE,

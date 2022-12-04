@@ -18,7 +18,9 @@ rand_pcg = "0.3.1"
 bevy_prototype_lyon = "0.7.1"
 
 [dependencies.web-sys]
-version = "0.3.59"
+version = "0.3.60"
 features = [
   "console",
+  "Storage",
+  "Window",
 ]
